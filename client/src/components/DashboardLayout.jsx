@@ -2,9 +2,17 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  HiSparkles, HiHome, HiPlusCircle, HiClock, HiUser, HiCog6Tooth,
-  HiArrowRightOnRectangle, HiBars3, HiXMark, HiSun, HiMoon, HiBell,
-  HiDocumentText, HiVideoCamera,
+  HiSparkles,
+  HiHome,
+  HiPlusCircle,
+  HiClock,
+  HiUser,
+  HiCog6Tooth,
+  HiArrowRightOnRectangle,
+  HiBars3,
+  HiXMark,
+  HiDocumentText,
+  HiVideoCamera,
 } from 'react-icons/hi2'
 import { useAuth } from '../context/AuthContext'
 
@@ -22,19 +30,14 @@ const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuth()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [isDark, setIsDark] = useState(true)
 
-  const toggleTheme = () => {
-    document.documentElement.classList.toggle('dark')
-    setIsDark((prev) => !prev)
-  }
-
-  const initials = user?.name
-    ?.split(' ')
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase() || 'U'
+  const initials =
+    user?.name
+      ?.split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || 'U'
 
   const SidebarContent = () => (
     <>
@@ -42,13 +45,19 @@ const DashboardLayout = ({ children }) => {
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-glow-sm">
           <HiSparkles className="text-white text-sm" />
         </div>
-        <span className="font-display font-bold text-lg text-white">PrepAI</span>
+
+        <span className="font-display font-bold text-lg text-white">
+          PrepAI
+        </span>
       </Link>
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.to ||
-            (item.to === '/interview/setup' && location.pathname.startsWith('/interview'))
+          const isActive =
+            location.pathname === item.to ||
+            (item.to === '/interview/setup' &&
+              location.pathname.startsWith('/interview'))
+
           return (
             <Link
               key={item.to}
@@ -57,7 +66,7 @@ const DashboardLayout = ({ children }) => {
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
                 isActive
                   ? 'bg-brand-500/15 text-white'
-                  : 'text-white/50 hover:text-white/90 hover:bg-white/[0.04]'
+                  : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
               }`}
             >
               {isActive && (
@@ -66,7 +75,11 @@ const DashboardLayout = ({ children }) => {
                   className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-400 rounded-r-full"
                 />
               )}
-              <item.icon className={`text-lg ${isActive ? 'text-brand-300' : ''}`} />
+
+              <item.icon
+                className={`text-lg ${isActive ? 'text-brand-300' : ''}`}
+              />
+
               {item.label}
             </Link>
           )
@@ -87,79 +100,70 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-surface-950 flex">
-      {/* Desktop sidebar */}
+      {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:w-64 lg:flex-col border-r border-white/[0.06] bg-surface-900/50 backdrop-blur-xl fixed inset-y-0 left-0 z-30">
         <SidebarContent />
       </aside>
 
-      {/* Mobile sidebar overlay */}
+      {/* Mobile Sidebar */}
       <AnimatePresence>
         {mobileOpen && (
           <>
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
             />
+
             <motion.aside
-              initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.25 }}
               className="fixed inset-y-0 left-0 w-64 bg-surface-900 border-r border-white/[0.06] flex flex-col z-50 lg:hidden"
             >
               <button
                 onClick={() => setMobileOpen(false)}
                 className="absolute top-5 right-4 text-white/40 hover:text-white"
-                aria-label="Close menu"
               >
                 <HiXMark className="text-xl" />
               </button>
+
               <SidebarContent />
             </motion.aside>
           </>
         )}
       </AnimatePresence>
 
-      {/* Main content area */}
+      {/* Main Content */}
       <div className="flex-1 lg:ml-64 flex flex-col min-w-0">
-        {/* Top bar */}
         <header className="h-16 border-b border-white/[0.06] bg-surface-950/70 backdrop-blur-xl sticky top-0 z-20 flex items-center justify-between px-4 sm:px-8">
           <button
             onClick={() => setMobileOpen(true)}
             className="lg:hidden text-white/60 hover:text-white"
-            aria-label="Open menu"
           >
             <HiBars3 className="text-2xl" />
           </button>
 
           <div className="hidden lg:block" />
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.06] transition-all"
-              aria-label="Toggle theme"
-            >
-              {isDark ? <HiMoon className="text-lg" /> : <HiSun className="text-lg" />}
-            </button>
+          {/* Profile */}
+          <Link
+            to="/profile"
+            className="flex items-center gap-2"
+          >
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-semibold">
+              {initials}
+            </div>
 
-            <button
-              className="relative w-9 h-9 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.06] transition-all"
-              aria-label="Notifications"
-            >
-              <HiBell className="text-lg" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-accent-teal rounded-full" />
-            </button>
-
-            <Link to="/profile" className="flex items-center gap-2 pl-2 sm:border-l border-white/[0.08]">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-xs font-semibold text-white">
-                {initials}
-              </div>
-              <span className="hidden sm:block text-sm font-medium text-white/80">{user?.name}</span>
-            </Link>
-          </div>
+            <span className="hidden sm:block text-sm font-medium text-white/80">
+              {user?.name}
+            </span>
+          </Link>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 p-4 sm:p-8">{children}</main>
       </div>
     </div>

@@ -2,6 +2,7 @@ const { GoogleAIFileManager } = require('@google/generative-ai/server')
 const pdfParse = require('pdf-parse')
 const fs = require('fs')
 
+
 const fileManager = new GoogleAIFileManager(process.env.GEMINI_API_KEY)
 const { GoogleGenerativeAI } = require('@google/generative-ai')
 
@@ -10,7 +11,9 @@ if (!process.env.GEMINI_API_KEY) {
 }
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' })
+const model = genAI.getGenerativeModel({
+  model:"gemini-flash-latest"
+});
 
 // Strips markdown code fences (```json ... ```) that Gemini sometimes wraps
 // around JSON responses, so JSON.parse doesn't blow up.
@@ -22,6 +25,23 @@ const cleanJsonResponse = (text) => {
  * Generates interview questions using Gemini.
  * Returns an array of { questionText, type }.
  */
+const generateWithRetry = async (prompt, contentParts = null, retries = 2) => {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const result = contentParts
+        ? await model.generateContent([prompt, contentParts])
+        : await model.generateContent(prompt)
+      return result
+    } catch (err) {
+      const is503 = err.message?.includes('503') || err.message?.includes('overloaded')
+      if (is503 && attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, 2000 * (attempt + 1))) // wait longer each retry
+        continue
+      }
+      throw err
+    }
+  }
+}
 const generateInterviewQuestions = async ({ topic, difficulty, numQuestions, type }) => {
   const prompt = `You are an expert technical interviewer. Generate exactly ${numQuestions} interview questions for a candidate.
 
@@ -42,7 +62,7 @@ Respond with ONLY a valid JSON array, no markdown, no explanation, in this exact
   { "questionText": "...", "type": "${type}" }
 ]`
 
-  const result = await model.generateContent(prompt)
+  const result = await generateWithRetry(prompt)
   const responseText = result.response.text()
   const cleaned = cleanJsonResponse(responseText)
 
@@ -234,7 +254,7 @@ Respond with ONLY valid JSON, no markdown, no explanation, in this exact format:
 
 The "questions" array must have exactly ${questions.length} items, in the same order as given above.`
 
-  const result = await model.generateContent(prompt)
+ const result = await generateWithRetry(prompt)
   const responseText = result.response.text()
   const cleaned = cleanJsonResponse(responseText)
 
