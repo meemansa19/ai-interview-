@@ -11,7 +11,7 @@ export const uploadVideoInterview = (videoFile, question, source, onUploadProgre
   return api.post('/video-interview/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress,
-    timeout: 120000, // 2 minutes — video uploads take longer than our default timeout
+    timeout: 300000, // 5 minutes video uploads take longer than our default timeout
   })
 }
 
